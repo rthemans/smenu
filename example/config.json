@@ -1,0 +1,45 @@
+{
+    "title": "my awesome menu",
+    "width": "80%",
+    "height": "80%",
+    "entries": [
+        {
+            "name": "java",
+            "type": "submenu",
+            "entries": [
+                {
+                    "name": "Build",
+                    "type": "exec",
+                    "exec": "mvn compile"
+                },
+                {
+                    "name": "install",
+                    "type": "call",
+                    "call": "install_java",
+                    "parameters": [ "-DskipTests" ]
+                },
+                {
+                    "name": "Run tests",
+                    "type": "option_call",
+                    "call": "java_test",
+                    "options": "get_java_test_options"
+                }
+            ]
+        },
+        {
+            "name": "Push to gerrit",
+            "type": "option_call",
+            "call": "push_gerrit",
+            "options": [
+                {
+                    "value": "1",
+                    "display": "Popup"
+                },
+                {
+                    "value": "2",
+                    "display": "In shell"
+                }
+            ]
+        }
+    ]
+}
