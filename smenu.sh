@@ -5,6 +5,7 @@ main() {
     check_dependency jq
     load_config
     source_extensions
+    cd_to_tmux_pwd
     show_main_menu
 }
 
@@ -52,6 +53,12 @@ source_extensions() {
             [[ -f "$file" ]] && source "$file"
         done
     done
+}
+
+cd_to_tmux_pwd() {
+    if [ "$TMUX_PWD" ]; then
+        cd "$TMUX_PWD"
+    fi
 }
 
 fzft() {
