@@ -1,3 +1,4 @@
+#!/usr/bin/env bats
 setup() {
     export XDG_CONFIG_HOME="$BATS_TMPDIR/config"
     mkdir -p "$XDG_CONFIG_HOME/smenu"
