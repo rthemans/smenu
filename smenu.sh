@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
 main() {
-    check_dependencies
+    check_dependency fzf
+    check_dependency jq
     load_config
     source_extensions
     show_main_menu
 }
 
-check_dependencies() {
-    if ! command -v fzf &> /dev/null; then
-        echo "Error: fzf is required but not installed." >&2
+check_dependency() {
+    local util=$1
+    if ! command -v $util &> /dev/null; then
+        echo "Error: ${util} is required but not installed." >&2
         exit 1
     fi
 }
+
 
 load_config() {
     local config_paths=(
