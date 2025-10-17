@@ -38,11 +38,11 @@ load_config() {
 
     for path in "${config_paths[@]}"; do
         if [[ -f "$path" ]]; then
-            menu_title=$(jq -r '.title // $title' $path)
-            menu_width=$(jq -r '.settings.width // "80%"' $path)
-            menu_height=$(jq -r '.settings.height // "80%"' $path)
-            menu_popup_width=$(jq -r '.settings.popup.width // "80%"' $path)
-            menu_popup_height=$(jq -r '.settings.popup.height // "80%"' $path)
+            menu_title=$(jq -r --arg def "$title" '.title // $def' $path)
+            menu_width=$(jq -r --arg def "$menu_width" '.settings.width // $def' $path)
+            menu_height=$(jq -r --arg def "$menu_height" '.settings.height // $def' $path)
+            menu_popup_width=$(jq -r --arg def "$menu_popup_width" '.settings.popup.width // $def' $path)
+            menu_popup_height=$(jq -r --arg def "$menu_popup_height" '.settings.popup.height // $def' $path)
             menu_entries=$(jq -c '.entries' $path)
         fi
     done
