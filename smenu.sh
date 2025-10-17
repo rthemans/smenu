@@ -4,6 +4,7 @@ main() {
     check_dependency fzf
     check_dependency jq
     load_config
+    source_libs
     source_extensions
     cd_to_tmux_pwd
     show_main_menu
@@ -17,6 +18,14 @@ check_dependency() {
     fi
 }
 
+setup_defaults() {
+    menu_title="smenu"
+    menu_width=80%
+    menu_height=80%
+    menu_popup_width=80%
+    menu_popup_height=80%
+}
+
 
 load_config() {
     local config_paths=(
@@ -25,20 +34,51 @@ load_config() {
         "$HOME/.smenu.json"
     )
 
+    setup_defaults
+
     for path in "${config_paths[@]}"; do
         if [[ -f "$path" ]]; then
-            config_content=$(cat "$path")
-            menu_title=$(jq -r '.title' <<< "$config_content")
-            menu_width=$(jq -r '.width // "80%"' <<< "$config_content")
-            menu_height=$(jq -r '.height // "80%"' <<< "$config_content")
-            menu_entries=$(jq -c '.entries' <<< "$config_content")
-            return
+            menu_title=$(jq -r '.title // $title' $path)
+            menu_width=$(jq -r '.settings.width // "80%"' $path)
+            menu_height=$(jq -r '.settings.height // "80%"' $path)
+            menu_popup_width=$(jq -r '.settings.popup.width // "80%"' $path)
+            menu_popup_height=$(jq -r '.settings.popup.height // "80%"' $path)
+            menu_entries=$(jq -c '.entries' $path)
+        fi
+    done
+}
+
+source_libs() {
+    local lib_dir="${SMENU_LIB_DIR:-$(dirname "$0")/lib}"
+    local file
+
+    if [[ ! -d "$lib_dir" ]]; then
+        echo "Warning: No lib folder found ($lib_dir)." >&2
+        return 0
+    fi
+
+    local sh_files=()
+    while IFS= read -r -d '' file; do
+        sh_files+=("$file")
+    done < <(find "$lib_dir" -maxdepth 1 -name '*.sh' -print0 | sort -z)
+
+    if [[ ${#sh_files[@]} -eq 0 ]]; then
+        echo "Warning: no .sh files found under $lib_dir." >&2
+        return 0
+    fi
+
+    for file in "${sh_files[@]}"; do
+        if [[ -f "$file" && -r "$file" ]]; then
+            if ! source "$file"; then
+                echo "Error: Échec du chargement de $file" >&2
+                return 1
+            fi
+            echo "Debug: Loaded $file" >&2 
         fi
     done
 
-    echo "Error: No smenu.json config found in:" >&2
-    printf "  - %s\n" "${config_paths[@]}" >&2
-    exit 1
+    echo "Info: ${#sh_files[@]} libraries loaded from $lib_dir." >&2
+    return 0
 }
 
 source_extensions() {
