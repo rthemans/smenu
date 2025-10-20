@@ -88,11 +88,13 @@ source_extensions() {
         "$HOME/.smenu_extension*.sh"
     )
 
+    local extensions=()
     for pattern in "${extension_paths[@]}"; do
         for file in $pattern; do
-            [[ -f "$file" ]] && source "$file"
+            [[ -f "$file" ]] && source "$file" && extensions+=($file)
         done
     done
+    echo "Info: ${#extensions[@]} extensions loaded: ${extensions[@]}" >&2
 }
 
 cd_to_tmux_pwd() {
